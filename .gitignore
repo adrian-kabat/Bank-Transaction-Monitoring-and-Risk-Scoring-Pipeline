@@ -1,0 +1,26 @@
+.venv/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# PyCharm
+.idea/
+
+# Data files
+data/raw/*
+!data/raw/.gitkeep
+
+data/processed/*
+!data/processed/.gitkeep
+
+# Local warehouse files
+warehouse/*
+!warehouse/.gitkeep
+
+# Generated reports
+reports/*.html
+!reports/.gitkeep
+
+# Secrets
+.env
+kaggle.json
