@@ -4,21 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="7968a8bf-0277-4222-a3ff-5d056ffc36e3" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/financial-fraud-analytics-pipeline.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/data/processed/.gitkeep" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/data/raw/.gitkeep" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/reports/.gitkeep" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/scripts/00_download_data.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/scripts/01_inspect_data.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/warehouse/.gitkeep" afterDir="false" />
+    <list default="true" id="7968a8bf-0277-4222-a3ff-5d056ffc36e3" name="Changes" comment="Initialize data source ingestion workflow">
+      <change afterPath="$PROJECT_DIR$/scripts/02_profile_raw_data.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/scripts/03_clean_and_score_transactions.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/scripts/04_Kimball_dimensional_model.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sql/01_kpi_queries.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -55,6 +47,9 @@
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "Python.00_download_data.executor": "Run",
     "Python.01_inspect_data.executor": "Run",
+    "Python.02_profile_raw_data.executor": "Run",
+    "Python.03_clean_and_score_transactions.executor": "Run",
+    "Python.04_Kimball_dimensional_model.executor": "Run",
     "RunOnceActivity.MCP Project settings loaded": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
@@ -140,6 +135,15 @@
       <option name="presentableId" value="Default" />
       <updated>1781008857654</updated>
     </task>
+    <task id="LOCAL-00001" summary="Initialize data source ingestion workflow">
+      <option name="closed" value="true" />
+      <created>1781012780674</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1781012780674</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -152,5 +156,9 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Initialize data source ingestion workflow" />
+    <option name="LAST_COMMIT_MESSAGE" value="Initialize data source ingestion workflow" />
   </component>
 </project>
