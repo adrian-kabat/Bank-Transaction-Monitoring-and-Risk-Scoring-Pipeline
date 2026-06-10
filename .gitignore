@@ -1,33 +1,32 @@
+# Python
 .venv/
 __pycache__/
 *.pyc
-.ipynb_checkpoints/
 
 # PyCharm
 .idea/
 
-# Data files
-data/model/*
-!data/model/.gitkeep
+# Environment variables and secrets
+.env
+kaggle.json
 
+# Raw and processed data
 data/raw/*
 !data/raw/.gitkeep
 
 data/processed/*
 !data/processed/.gitkeep
 
-# Local warehouse files
+data/model/*
+!data/model/.gitkeep
+
+data/api/*
+!data/api/.gitkeep
+
+# Local warehouse
 warehouse/*
 !warehouse/.gitkeep
 
 # Generated reports
 reports/*.html
 !reports/.gitkeep
-
-# Secrets
-.env
-kaggle.json
-
-# API
-data/api/*
-!data/api/.gitkeep

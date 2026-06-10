@@ -4,13 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="7968a8bf-0277-4222-a3ff-5d056ffc36e3" name="Changes" comment="Add Power BI dashboard and project documentation">
-      <change afterPath="$PROJECT_DIR$/app/main.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/services/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/services/data_service.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/data/api/.gitkeep" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/scripts/09_fetch_from_api.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/scripts/10_run_pipeline.py" afterDir="false" />
+    <list default="true" id="7968a8bf-0277-4222-a3ff-5d056ffc36e3" name="Changes" comment="Add full pipeline orchestration script">
       <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
@@ -209,7 +203,15 @@
       <option name="project" value="LOCAL" />
       <updated>1781123456986</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="Add full pipeline orchestration script">
+      <option name="closed" value="true" />
+      <created>1781125145080</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1781125145080</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -230,6 +232,7 @@
     <MESSAGE value="Add separated cleaning and scoring, refracted scripts, HTML responsive" />
     <MESSAGE value="Add export script for Power BI model tables" />
     <MESSAGE value="Add Power BI dashboard and project documentation" />
-    <option name="LAST_COMMIT_MESSAGE" value="Add Power BI dashboard and project documentation" />
+    <MESSAGE value="Add full pipeline orchestration script" />
+    <option name="LAST_COMMIT_MESSAGE" value="Add full pipeline orchestration script" />
   </component>
 </project>
