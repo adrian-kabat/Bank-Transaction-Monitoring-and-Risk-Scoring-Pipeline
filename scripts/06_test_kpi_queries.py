@@ -15,7 +15,7 @@ QUERIES = {
             ROUND(SUM(transaction_amount), 2) AS total_transaction_amount,
             ROUND(AVG(transaction_amount), 2) AS average_transaction_amount,
             ROUND(AVG(account_balance), 2) AS average_account_balance,
-            ROUND(AVG(anomaly_score), 2) AS average_anomaly_score
+            ROUND(AVG(risk_score), 2) AS average_risk_score
         FROM fact_transactions;
     """,
     "suspicious_kpis": """
@@ -41,7 +41,7 @@ QUERIES = {
                 100.0 * SUM(f.anomaly_flag) / COUNT(*),
                 2
             ) AS suspicious_transaction_rate_pct,
-            ROUND(AVG(f.anomaly_score), 2) AS average_anomaly_score
+            ROUND(AVG(f.risk_score), 2) AS average_risk_score
         FROM fact_transactions f
         JOIN dim_channel c
             ON f.channel_key = c.channel_key

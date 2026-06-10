@@ -15,7 +15,7 @@ def load_processed_data() -> pd.DataFrame:
     if not PROCESSED_DATA_PATH.exists():
         raise FileNotFoundError(
             f"Processed data file not found: {PROCESSED_DATA_PATH}. "
-            "Run scripts/03_clean_and_score_transactions.py first."
+            "Run scripts/04_score_transactions.py first."
         )
 
     df = pd.read_csv(PROCESSED_DATA_PATH)
@@ -212,7 +212,7 @@ def build_fact_transactions(
             "minutes_since_previous_transaction",
             "transaction_hour",
             "transaction_count",
-            "anomaly_score",
+            "risk_score",
             "anomaly_flag",
             "risk_level",
         ]

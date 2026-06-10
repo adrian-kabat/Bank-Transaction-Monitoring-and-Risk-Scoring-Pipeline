@@ -18,7 +18,7 @@ QUERIES = {
             ROUND(SUM(transaction_amount), 2) AS total_transaction_amount,
             ROUND(AVG(transaction_amount), 2) AS average_transaction_amount,
             ROUND(AVG(account_balance), 2) AS average_account_balance,
-            ROUND(AVG(anomaly_score), 2) AS average_anomaly_score
+            ROUND(AVG(risk_score), 2) AS average_risk_score
         FROM fact_transactions;
     """,
     "suspicious_kpis": """
@@ -41,7 +41,7 @@ QUERIES = {
             COUNT(*) AS transaction_count,
             ROUND(SUM(transaction_amount), 2) AS total_transaction_amount,
             ROUND(AVG(transaction_amount), 2) AS average_transaction_amount,
-            ROUND(AVG(anomaly_score), 2) AS average_anomaly_score
+            ROUND(AVG(risk_score), 2) AS average_risk_score
         FROM fact_transactions
         GROUP BY risk_level
         ORDER BY
@@ -62,7 +62,7 @@ QUERIES = {
                 100.0 * SUM(f.anomaly_flag) / COUNT(*),
                 2
             ) AS suspicious_transaction_rate_pct,
-            ROUND(AVG(f.anomaly_score), 2) AS average_anomaly_score
+            ROUND(AVG(f.risk_score), 2) AS average_risk_score
         FROM fact_transactions f
         JOIN dim_channel c
             ON f.channel_key = c.channel_key
@@ -79,7 +79,7 @@ QUERIES = {
                 100.0 * SUM(f.anomaly_flag) / COUNT(*),
                 2
             ) AS suspicious_transaction_rate_pct,
-            ROUND(AVG(f.anomaly_score), 2) AS average_anomaly_score
+            ROUND(AVG(f.risk_score), 2) AS average_risk_score
         FROM fact_transactions f
         JOIN dim_transaction_type tt
             ON f.transaction_type_key = tt.transaction_type_key
@@ -96,7 +96,7 @@ QUERIES = {
                 100.0 * SUM(f.anomaly_flag) / COUNT(*),
                 2
             ) AS suspicious_transaction_rate_pct,
-            ROUND(AVG(f.anomaly_score), 2) AS average_anomaly_score
+            ROUND(AVG(f.risk_score), 2) AS average_risk_score
         FROM fact_transactions f
         JOIN dim_location l
             ON f.location_key = l.location_key
@@ -117,7 +117,7 @@ QUERIES = {
             f.transaction_duration,
             f.minutes_since_previous_transaction,
             f.account_balance,
-            f.anomaly_score,
+            f.risk_score,
             f.risk_level
         FROM fact_transactions f
         JOIN dim_account a
@@ -132,7 +132,7 @@ QUERIES = {
             ON f.transaction_type_key = tt.transaction_type_key
         WHERE f.anomaly_flag = 1
         ORDER BY
-            f.anomaly_score DESC,
+            f.risk_score DESC,
             f.transaction_amount DESC
         LIMIT 10;
     """,
@@ -145,7 +145,7 @@ QUERIES = {
                 100.0 * SUM(anomaly_flag) / COUNT(*),
                 2
             ) AS suspicious_transaction_rate_pct,
-            ROUND(AVG(anomaly_score), 2) AS average_anomaly_score,
+            ROUND(AVG(risk_score), 2) AS average_risk_score,
             ROUND(AVG(transaction_amount), 2) AS average_transaction_amount
         FROM fact_transactions
         GROUP BY transaction_hour
@@ -175,10 +175,20 @@ def run_queries(connection: sqlite3.Connection) -> dict[str, pd.DataFrame]:
 
     return results
 
+def format_column_names(df: pd.DataFrame) -> pd.DataFrame:
+    """Format column names for presentation in the HTML report."""
+    formatted_df = df.copy()
+    formatted_df.columns = [
+        column.replace("_", " ").title()
+        for column in formatted_df.columns
+    ]
+    return formatted_df
 
 def dataframe_to_html_table(df: pd.DataFrame) -> str:
-    """Convert a DataFrame to an HTML table."""
-    return df.to_html(
+    """Convert a DataFrame to an HTML table with presentation-friendly column names."""
+    formatted_df = format_column_names(df)
+
+    return formatted_df.to_html(
         index=False,
         border=0,
         classes="data-table",
@@ -201,7 +211,7 @@ def build_kpi_cards(
         ("Suspicious transactions", f"{int(suspicious['suspicious_transaction_count']):,}"),
         ("Suspicious rate", f"{suspicious['suspicious_transaction_rate_pct']:.2f}%"),
         ("Suspicious amount", f"{suspicious['suspicious_transaction_amount']:,.2f}"),
-        ("Average anomaly score", f"{basic['average_anomaly_score']:.2f}"),
+        ("Average anomaly score", f"{basic['average_risk_score']:.2f}"),
     ]
 
     cards_html = ""
@@ -240,7 +250,9 @@ def build_html_report(results: dict[str, pd.DataFrame]) -> str:
         sections_html += f"""
         <section>
             <h2>{section_title}</h2>
-            {table_html}
+            <div class="table-wrapper">
+                {table_html}
+            </div>
         </section>
         """
 
@@ -253,83 +265,155 @@ def build_html_report(results: dict[str, pd.DataFrame]) -> str:
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Transaction Monitoring Report</title>
-    <style>
+<style>
+    * {{
+        box-sizing: border-box;
+    }}
+
+    body {{
+        font-family: Arial, sans-serif;
+        margin: 40px;
+        color: #222;
+        background-color: #fafafa;
+        line-height: 1.5;
+    }}
+
+    h1 {{
+        margin-bottom: 0;
+        font-size: 32px;
+    }}
+
+    h2 {{
+        font-size: 22px;
+        margin-top: 0;
+    }}
+
+    .subtitle {{
+        color: #666;
+        margin-top: 5px;
+        margin-bottom: 30px;
+    }}
+
+    section {{
+        margin-top: 35px;
+        padding: 20px;
+        background-color: #ffffff;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+    }}
+
+    .kpi-grid {{
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 15px;
+    }}
+
+    .kpi-card {{
+        padding: 16px;
+        background-color: #f5f5f5;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+    }}
+
+    .kpi-label {{
+        font-size: 13px;
+        color: #666;
+        margin-bottom: 8px;
+    }}
+
+    .kpi-value {{
+        font-size: 24px;
+        font-weight: bold;
+        overflow-wrap: anywhere;
+    }}
+
+    .table-wrapper {{
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }}
+
+    .data-table {{
+        width: 100%;
+        min-width: 760px;
+        border-collapse: collapse;
+        margin-top: 10px;
+        font-size: 14px;
+    }}
+
+    .data-table th {{
+        background-color: #f0f0f0;
+        text-align: left;
+        padding: 8px;
+        border-bottom: 2px solid #ccc;
+        white-space: nowrap;
+    }}
+
+    .data-table td {{
+        padding: 8px;
+        border-bottom: 1px solid #ddd;
+        white-space: nowrap;
+    }}
+
+    .note {{
+        margin-top: 30px;
+        font-size: 13px;
+        color: #666;
+    }}
+
+    @media (max-width: 768px) {{
         body {{
-            font-family: Arial, sans-serif;
-            margin: 40px;
-            color: #222;
-            background-color: #fafafa;
-        }}
-
-        h1 {{
-            margin-bottom: 0;
-        }}
-
-        .subtitle {{
-            color: #666;
-            margin-top: 5px;
-            margin-bottom: 30px;
-        }}
-
-        section {{
-            margin-top: 35px;
-            padding: 20px;
-            background-color: #ffffff;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-        }}
-
-        .kpi-grid {{
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 15px;
-        }}
-
-        .kpi-card {{
-            padding: 16px;
-            background-color: #f5f5f5;
-            border-radius: 8px;
-            border: 1px solid #ddd;
-        }}
-
-        .kpi-label {{
-            font-size: 13px;
-            color: #666;
-            margin-bottom: 8px;
-        }}
-
-        .kpi-value {{
-            font-size: 24px;
-            font-weight: bold;
-        }}
-
-        .data-table {{
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
+            margin: 12px;
             font-size: 14px;
         }}
 
-        .data-table th {{
-            background-color: #f0f0f0;
-            text-align: left;
-            padding: 8px;
-            border-bottom: 2px solid #ccc;
+        h1 {{
+            font-size: 24px;
+            line-height: 1.2;
         }}
 
-        .data-table td {{
-            padding: 8px;
-            border-bottom: 1px solid #ddd;
+        h2 {{
+            font-size: 18px;
         }}
 
-        .note {{
-            margin-top: 30px;
+        section {{
+            margin-top: 18px;
+            padding: 14px;
+            border-radius: 6px;
+        }}
+
+        .subtitle {{
+            margin-bottom: 18px;
             font-size: 13px;
-            color: #666;
         }}
-    </style>
+
+        .kpi-grid {{
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }}
+
+        .kpi-card {{
+            padding: 12px;
+        }}
+
+        .kpi-value {{
+            font-size: 20px;
+        }}
+
+        .data-table {{
+            min-width: 720px;
+            font-size: 12px;
+        }}
+
+        .data-table th,
+        .data-table td {{
+            padding: 6px;
+        }}
+    }}
+</style>
+
 </head>
 <body>
     <h1>Bank Transaction Monitoring Report</h1>

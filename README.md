@@ -4,11 +4,19 @@ This project demonstrates an end-to-end analytics pipeline for bank transaction 
 
 The pipeline includes KaggleHub data ingestion, Python-based data preparation, anomaly scoring, dimensional modeling, SQL KPI queries, automated reporting, and a Power BI dashboard.
 
-## Modeling approach
+## Risk scoring approach
 
-The dataset does not contain a confirmed fraud label. Therefore, this project does not implement supervised fraud classification.
+The project currently uses a rule-based anomaly scoring method. This approach is intentionally separated from the data cleaning pipeline to make the risk model easier to maintain and extend.
 
-Instead, it focuses on transaction monitoring and rule-based anomaly detection. The generated `anomaly_flag` should be interpreted as an indicator of potentially suspicious transactions requiring further review, not as confirmed fraud.
+The current `anomaly_score` is heuristic and should be interpreted as a suspicious transaction indicator, not as a confirmed fraud prediction.
+
+Future versions may include:
+- weighted risk scoring,
+- configurable thresholds,
+- unsupervised anomaly detection,
+- Isolation Forest,
+- model monitoring,
+- comparison of rule-based and ML-based approaches.
 
 ## Model wymiarowy Kimballa
 

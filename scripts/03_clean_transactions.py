@@ -180,49 +180,19 @@ def add_features(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def add_anomaly_score(df: pd.DataFrame) -> pd.DataFrame:
-    """Create rule-based anomaly score and risk level."""
-    amount_p95 = df["transaction_amount"].quantile(0.95)
-    amount_p99 = df["transaction_amount"].quantile(0.99)
-    duration_p95 = df["transaction_duration"].quantile(0.95)
-    balance_p05 = df["account_balance"].quantile(0.05)
-
-    df["anomaly_score"] = 0
-
-    df.loc[df["transaction_amount"] >= amount_p95, "anomaly_score"] += 30
-    df.loc[df["transaction_amount"] >= amount_p99, "anomaly_score"] += 20
-    df.loc[df["login_attempts"] > 1, "anomaly_score"] += 20
-    df.loc[df["transaction_duration"] >= duration_p95, "anomaly_score"] += 20
-    df.loc[df["account_balance"] <= balance_p05, "anomaly_score"] += 20
-    df.loc[df["transaction_hour"].between(0, 5), "anomaly_score"] += 10
-    df.loc[df["minutes_since_previous_transaction"] <= 10, "anomaly_score"] += 20
-
-    df["anomaly_flag"] = (df["anomaly_score"] >= 60).astype(int)
-
-    df["risk_level"] = pd.cut(
-        df["anomaly_score"],
-        bins=[-1, 29, 59, float("inf")],
-        labels=["Low", "Medium", "High"],
-    ).astype(str)
-
-    return df
-
-
 def save_processed_data(df: pd.DataFrame) -> None:
-    """Save cleaned and scored transaction data."""
+    """Save cleaned transaction data."""
     PROCESSED_DATA_DIR.mkdir(parents=True, exist_ok=True)
 
-    output_path = PROCESSED_DATA_DIR / "transactions_scored.csv"
+    output_path = PROCESSED_DATA_DIR / "transactions_clean.csv"
     df.to_csv(output_path, index=False)
 
-    print(f"Processed data saved to: {output_path}")
-    print(f"Processed shape: {df.shape}")
+    print(f"Clean data saved to: {output_path}")
+    print(f"Clean data shape: {df.shape}")
 
-    print("\nRisk level distribution:")
-    print(df["risk_level"].value_counts())
-
-    print("\nAnomaly flag distribution:")
-    print(df["anomaly_flag"].value_counts())
+    print("\nColumns in clean dataset:")
+    for column in df.columns:
+        print(f"- {column}")
 
 
 def main() -> None:
@@ -233,7 +203,6 @@ def main() -> None:
     df = validate_numeric_columns(df)
     df = remove_duplicates(df)
     df = add_features(df)
-    df = add_anomaly_score(df)
     save_processed_data(df)
 
 
