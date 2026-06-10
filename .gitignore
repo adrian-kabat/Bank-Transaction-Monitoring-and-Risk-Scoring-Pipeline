@@ -27,3 +27,7 @@ reports/*.html
 # Secrets
 .env
 kaggle.json
+
+# API
+data/api/*
+!data/api/.gitkeep
