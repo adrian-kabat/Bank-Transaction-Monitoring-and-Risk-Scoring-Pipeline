@@ -4,14 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="7968a8bf-0277-4222-a3ff-5d056ffc36e3" name="Changes" comment="Add automated HTML KPI report generation">
-      <change afterPath="$PROJECT_DIR$/scripts/04_score_transactions.py" afterDir="false" />
+    <list default="true" id="7968a8bf-0277-4222-a3ff-5d056ffc36e3" name="Changes" comment="Add separated cleaning and scoring, refracted scripts, HTML responsive">
+      <change afterPath="$PROJECT_DIR$/data/model/.gitkeep" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/scripts/08_export_model_tables.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/03_clean_and_score_transactions.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/03_clean_transactions.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/04_Kimball_dimensional_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/05_Kimball_dimensional_model.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/05_test_kpi_queries.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/06_test_kpi_queries.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/06_generate_html_report.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/07_generate_html_report.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -62,6 +59,7 @@
     "Python.06_generate_html_report.executor": "Run",
     "Python.06_test_kpi_queries.executor": "Run",
     "Python.07_generate_html_report.executor": "Run",
+    "Python.08_export_model_tables.executor": "Run",
     "RunOnceActivity.MCP Project settings loaded": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
@@ -171,7 +169,15 @@
       <option name="project" value="LOCAL" />
       <updated>1781020474957</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="Add separated cleaning and scoring, refracted scripts, HTML responsive">
+      <option name="closed" value="true" />
+      <created>1781100199416</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1781100199416</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -189,6 +195,7 @@
     <MESSAGE value="Initialize data source ingestion workflow" />
     <MESSAGE value="Add SQL KPI queries for dimensional model" />
     <MESSAGE value="Add automated HTML KPI report generation" />
-    <option name="LAST_COMMIT_MESSAGE" value="Add automated HTML KPI report generation" />
+    <MESSAGE value="Add separated cleaning and scoring, refracted scripts, HTML responsive" />
+    <option name="LAST_COMMIT_MESSAGE" value="Add separated cleaning and scoring, refracted scripts, HTML responsive" />
   </component>
 </project>
