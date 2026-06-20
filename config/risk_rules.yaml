@@ -1,0 +1,35 @@
+# Rule-based risk scoring configuration.
+# Scores are heuristic and do not represent confirmed fraud prediction.
+
+amount:
+  high_amount_quantile: 0.95
+  high_amount_points: 30
+  very_high_amount_quantile: 0.99
+  very_high_amount_points: 20
+
+login_attempts:
+  multiple_login_attempts_threshold: 1
+  multiple_login_attempts_points: 20
+
+transaction_duration:
+  long_duration_quantile: 0.95
+  long_duration_points: 20
+
+account_balance:
+  low_balance_quantile: 0.05
+  low_balance_points: 20
+
+transaction_hour:
+  night_start_hour: 0
+  night_end_hour: 5
+  night_transaction_points: 10
+
+transaction_frequency:
+  short_interval_minutes: 10
+  short_interval_points: 20
+
+classification:
+  suspicious_threshold: 60
+  max_risk_score: 100
+  low_risk_max: 29
+  medium_risk_max: 59
