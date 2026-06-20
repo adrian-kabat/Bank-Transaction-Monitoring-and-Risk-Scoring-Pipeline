@@ -43,15 +43,15 @@ The project generates:
 
 ### Power BI — Executive Risk Overview
 
-![Executive Risk Overview](docs/screenshots/powerbi_executive_risk_overview.png)
+![Executive Risk Overview](docs/screenshots/page_1_executive_risk_overview.png)
 
 ### Power BI — Risk Drivers
 
-![Risk Drivers](docs/screenshots/powerbi_risk_drivers.png)
+![Risk Drivers](docs/screenshots/page_2_risk_drivers.png)
 
 ### Power BI — Operational Monitoring
 
-![Operational Monitoring](docs/screenshots/powerbi_operational_monitoring.png)
+![Operational Monitoring](docs/screenshots/page_3_operational_monitoring.png)
 
 ### Automated HTML report
 
