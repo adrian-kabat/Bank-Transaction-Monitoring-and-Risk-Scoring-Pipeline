@@ -1,5 +1,7 @@
 # Bank Transaction Monitoring and Rule-Based Risk Scoring Pipeline
 
+![Python tests](https://github.com/adrian-kabat/Bank-Transaction-Monitoring-and-Risk-Scoring-Pipeline/actions/workflows/tests.yml/badge.svg)
+
 ## Project summary
 
 This project demonstrates an end-to-end analytics and reporting pipeline for bank transaction monitoring. It simulates a small analytical system that helps identify potentially suspicious transactions, prioritize cases for further review, and monitor transaction risk KPIs.
