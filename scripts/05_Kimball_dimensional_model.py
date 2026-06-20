@@ -213,8 +213,9 @@ def build_fact_transactions(
             "transaction_hour",
             "transaction_count",
             "risk_score",
-            "anomaly_flag",
+            "suspicious_flag",
             "risk_level",
+            "risk_reasons",
         ]
     ]
 

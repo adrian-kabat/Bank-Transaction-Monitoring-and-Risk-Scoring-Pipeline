@@ -21,13 +21,13 @@ QUERIES = {
     "suspicious_kpis": """
         SELECT
             COUNT(*) AS transaction_count,
-            SUM(anomaly_flag) AS suspicious_transaction_count,
+            SUM(suspicious_flag) AS suspicious_transaction_count,
             ROUND(
-                100.0 * SUM(anomaly_flag) / COUNT(*),
+                100.0 * SUM(suspicious_flag) / COUNT(*),
                 2
             ) AS suspicious_transaction_rate_pct,
             ROUND(
-                SUM(CASE WHEN anomaly_flag = 1 THEN transaction_amount ELSE 0 END),
+                SUM(CASE WHEN suspicious_flag = 1 THEN transaction_amount ELSE 0 END),
                 2
             ) AS suspicious_transaction_amount
         FROM fact_transactions;
@@ -36,9 +36,9 @@ QUERIES = {
         SELECT
             c.channel,
             COUNT(*) AS transaction_count,
-            SUM(f.anomaly_flag) AS suspicious_transaction_count,
+            SUM(f.suspicious_flag) AS suspicious_transaction_count,
             ROUND(
-                100.0 * SUM(f.anomaly_flag) / COUNT(*),
+                100.0 * SUM(f.suspicious_flag) / COUNT(*),
                 2
             ) AS suspicious_transaction_rate_pct,
             ROUND(AVG(f.risk_score), 2) AS average_risk_score

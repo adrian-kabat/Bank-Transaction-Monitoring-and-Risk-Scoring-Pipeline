@@ -1,5 +1,5 @@
 -- ============================================================
--- Bank Transaction Monitoring and Anomaly Detection Pipeline
+-- Bank Transaction Monitoring and Risk Detection Pipeline
 -- KPI queries for Kimball dimensional model
 -- ============================================================
 
@@ -10,20 +10,20 @@ SELECT
     ROUND(SUM(transaction_amount), 2) AS total_transaction_amount,
     ROUND(AVG(transaction_amount), 2) AS average_transaction_amount,
     ROUND(AVG(account_balance), 2) AS average_account_balance,
-    ROUND(AVG(anomaly_score), 2) AS average_anomaly_score
+    ROUND(AVG(risk_score), 2) AS average_risk_score
 FROM fact_transactions;
 
 
 -- 2. Suspicious transaction KPIs
 SELECT
     COUNT(*) AS transaction_count,
-    SUM(anomaly_flag) AS suspicious_transaction_count,
+    SUM(suspicious_flag) AS suspicious_transaction_count,
     ROUND(
-        100.0 * SUM(anomaly_flag) / COUNT(*),
+        100.0 * SUM(suspicious_flag) / COUNT(*),
         2
     ) AS suspicious_transaction_rate_pct,
     ROUND(
-        SUM(CASE WHEN anomaly_flag = 1 THEN transaction_amount ELSE 0 END),
+        SUM(CASE WHEN suspicious_flag = 1 THEN transaction_amount ELSE 0 END),
         2
     ) AS suspicious_transaction_amount
 FROM fact_transactions;
@@ -35,7 +35,7 @@ SELECT
     COUNT(*) AS transaction_count,
     ROUND(SUM(transaction_amount), 2) AS total_transaction_amount,
     ROUND(AVG(transaction_amount), 2) AS average_transaction_amount,
-    ROUND(AVG(anomaly_score), 2) AS average_anomaly_score
+    ROUND(AVG(risk_score), 2) AS average_risk_score
 FROM fact_transactions
 GROUP BY risk_level
 ORDER BY
@@ -54,12 +54,12 @@ SELECT
     d.month_name,
     COUNT(*) AS transaction_count,
     ROUND(SUM(f.transaction_amount), 2) AS total_transaction_amount,
-    SUM(f.anomaly_flag) AS suspicious_transaction_count,
+    SUM(f.suspicious_flag) AS suspicious_transaction_count,
     ROUND(
-        100.0 * SUM(f.anomaly_flag) / COUNT(*),
+        100.0 * SUM(f.suspicious_flag) / COUNT(*),
         2
     ) AS suspicious_transaction_rate_pct,
-    ROUND(AVG(f.anomaly_score), 2) AS average_anomaly_score
+    ROUND(AVG(f.risk_score), 2) AS average_risk_score
 FROM fact_transactions f
 JOIN dim_date d
     ON f.date_key = d.date_key
@@ -77,12 +77,12 @@ SELECT
     c.channel,
     COUNT(*) AS transaction_count,
     ROUND(SUM(f.transaction_amount), 2) AS total_transaction_amount,
-    SUM(f.anomaly_flag) AS suspicious_transaction_count,
+    SUM(f.suspicious_flag) AS suspicious_transaction_count,
     ROUND(
-        100.0 * SUM(f.anomaly_flag) / COUNT(*),
+        100.0 * SUM(f.suspicious_flag) / COUNT(*),
         2
     ) AS suspicious_transaction_rate_pct,
-    ROUND(AVG(f.anomaly_score), 2) AS average_anomaly_score
+    ROUND(AVG(f.risk_score), 2) AS average_risk_score
 FROM fact_transactions f
 JOIN dim_channel c
     ON f.channel_key = c.channel_key
@@ -95,12 +95,12 @@ SELECT
     tt.transaction_type,
     COUNT(*) AS transaction_count,
     ROUND(SUM(f.transaction_amount), 2) AS total_transaction_amount,
-    SUM(f.anomaly_flag) AS suspicious_transaction_count,
+    SUM(f.suspicious_flag) AS suspicious_transaction_count,
     ROUND(
-        100.0 * SUM(f.anomaly_flag) / COUNT(*),
+        100.0 * SUM(f.suspicious_flag) / COUNT(*),
         2
     ) AS suspicious_transaction_rate_pct,
-    ROUND(AVG(f.anomaly_score), 2) AS average_anomaly_score
+    ROUND(AVG(f.risk_score), 2) AS average_risk_score
 FROM fact_transactions f
 JOIN dim_transaction_type tt
     ON f.transaction_type_key = tt.transaction_type_key
@@ -113,12 +113,12 @@ SELECT
     l.location,
     COUNT(*) AS transaction_count,
     ROUND(SUM(f.transaction_amount), 2) AS total_transaction_amount,
-    SUM(f.anomaly_flag) AS suspicious_transaction_count,
+    SUM(f.suspicious_flag) AS suspicious_transaction_count,
     ROUND(
-        100.0 * SUM(f.anomaly_flag) / COUNT(*),
+        100.0 * SUM(f.suspicious_flag) / COUNT(*),
         2
     ) AS suspicious_transaction_rate_pct,
-    ROUND(AVG(f.anomaly_score), 2) AS average_anomaly_score
+    ROUND(AVG(f.risk_score), 2) AS average_risk_score
 FROM fact_transactions f
 JOIN dim_location l
     ON f.location_key = l.location_key
@@ -126,16 +126,16 @@ GROUP BY l.location
 ORDER BY suspicious_transaction_rate_pct DESC;
 
 
--- 8. Top 10 accounts by anomaly score
+-- 8. Top 10 accounts by risk score
 SELECT
     a.account_id,
     a.customer_age,
     a.customer_occupation,
     COUNT(*) AS transaction_count,
     ROUND(SUM(f.transaction_amount), 2) AS total_transaction_amount,
-    SUM(f.anomaly_flag) AS suspicious_transaction_count,
-    ROUND(AVG(f.anomaly_score), 2) AS average_anomaly_score,
-    MAX(f.anomaly_score) AS max_anomaly_score
+    SUM(f.suspicious_flag) AS suspicious_transaction_count,
+    ROUND(AVG(f.risk_score), 2) AS average_risk_score,
+    MAX(f.risk_score) AS max_risk_score
 FROM fact_transactions f
 JOIN dim_account a
     ON f.account_key = a.account_key
@@ -143,7 +143,7 @@ GROUP BY
     a.account_id,
     a.customer_age,
     a.customer_occupation
-ORDER BY average_anomaly_score DESC
+ORDER BY average_risk_score DESC
 LIMIT 10;
 
 
@@ -161,8 +161,9 @@ SELECT
     f.transaction_duration,
     f.minutes_since_previous_transaction,
     f.account_balance,
-    f.anomaly_score,
-    f.risk_level
+    f.risk_score,
+    f.risk_level,
+    f.risk_reasons
 FROM fact_transactions f
 JOIN dim_account a
     ON f.account_key = a.account_key
@@ -174,9 +175,9 @@ JOIN dim_location l
     ON f.location_key = l.location_key
 JOIN dim_transaction_type tt
     ON f.transaction_type_key = tt.transaction_type_key
-WHERE f.anomaly_flag = 1
+WHERE f.suspicious_flag = 1
 ORDER BY
-    f.anomaly_score DESC,
+    f.risk_score DESC,
     f.transaction_amount DESC
 LIMIT 10;
 
@@ -185,12 +186,12 @@ LIMIT 10;
 SELECT
     transaction_hour,
     COUNT(*) AS transaction_count,
-    SUM(anomaly_flag) AS suspicious_transaction_count,
+    SUM(suspicious_flag) AS suspicious_transaction_count,
     ROUND(
-        100.0 * SUM(anomaly_flag) / COUNT(*),
+        100.0 * SUM(suspicious_flag) / COUNT(*),
         2
     ) AS suspicious_transaction_rate_pct,
-    ROUND(AVG(anomaly_score), 2) AS average_anomaly_score,
+    ROUND(AVG(risk_score), 2) AS average_risk_score,
     ROUND(AVG(transaction_amount), 2) AS average_transaction_amount
 FROM fact_transactions
 GROUP BY transaction_hour

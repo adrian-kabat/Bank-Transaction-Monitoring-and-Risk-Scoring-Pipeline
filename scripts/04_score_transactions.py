@@ -28,10 +28,10 @@ def load_clean_data() -> pd.DataFrame:
 
 def add_rule_based_risk_score(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Add a rule-based anomaly score.
+    Add rule-based risk score, suspicious flag, risk level, and risk reason codes.
 
-    This is a heuristic risk scoring approach. It does not represent a supervised
-    fraud prediction model because the dataset does not contain confirmed fraud labels.
+    The score is heuristic and does not represent confirmed fraud prediction.
+    Risk reasons explain why a transaction received risk points.
     """
     df = df.copy()
 
@@ -41,22 +41,71 @@ def add_rule_based_risk_score(df: pd.DataFrame) -> pd.DataFrame:
     balance_p05 = df["account_balance"].quantile(0.05)
 
     df["risk_score"] = 0
+    df["risk_reasons"] = ""
 
-    df.loc[df["transaction_amount"] >= amount_p95, "risk_score"] += 30
-    df.loc[df["transaction_amount"] >= amount_p99, "risk_score"] += 20
-    df.loc[df["login_attempts"] > 1, "risk_score"] += 20
-    df.loc[df["transaction_duration"] >= duration_p95, "risk_score"] += 20
-    df.loc[df["account_balance"] <= balance_p05, "risk_score"] += 20
-    df.loc[df["transaction_hour"].between(0, 5), "risk_score"] += 10
-    df.loc[df["minutes_since_previous_transaction"] <= 10, "risk_score"] += 20
+    def add_risk(condition: pd.Series, points: int, reason: str) -> None:
+        df.loc[condition, "risk_score"] += points
 
-    df["anomaly_flag"] = (df["risk_score"] >= 60).astype(int)
+        df.loc[condition, "risk_reasons"] = df.loc[
+            condition,
+            "risk_reasons"
+        ].apply(
+            lambda existing: reason if existing == "" else f"{existing}, {reason}"
+        )
+
+    add_risk(
+        df["transaction_amount"] >= amount_p95,
+        30,
+        "high_amount_p95",
+    )
+
+    add_risk(
+        df["transaction_amount"] >= amount_p99,
+        20,
+        "very_high_amount_p99",
+    )
+
+    add_risk(
+        df["login_attempts"] > 1,
+        20,
+        "multiple_login_attempts",
+    )
+
+    add_risk(
+        df["transaction_duration"] >= duration_p95,
+        20,
+        "long_transaction_duration",
+    )
+
+    add_risk(
+        df["account_balance"] <= balance_p05,
+        20,
+        "low_account_balance",
+    )
+
+    add_risk(
+        df["transaction_hour"].between(0, 5),
+        10,
+        "night_transaction",
+    )
+
+    add_risk(
+        df["minutes_since_previous_transaction"] <= 10,
+        20,
+        "short_interval_since_previous_transaction",
+    )
+
+    df["risk_score"] = df["risk_score"].clip(upper=100)
+
+    df["suspicious_flag"] = (df["risk_score"] >= 60).astype(int)
 
     df["risk_level"] = pd.cut(
         df["risk_score"],
-        bins=[-1, 29, 59, float("inf")],
+        bins=[-1, 29, 59, 100],
         labels=["Low", "Medium", "High"],
     ).astype(str)
+
+    df["risk_reasons"] = df["risk_reasons"].replace("", "no_risk_rule_triggered")
 
     return df
 
@@ -64,6 +113,7 @@ def add_rule_based_risk_score(df: pd.DataFrame) -> pd.DataFrame:
 def save_scored_data(df: pd.DataFrame) -> None:
     """Save scored transaction data."""
     PROCESSED_DATA_DIR.mkdir(parents=True, exist_ok=True)
+
     df.to_csv(OUTPUT_PATH, index=False)
 
     print(f"Scored data saved to: {OUTPUT_PATH}")
@@ -72,8 +122,11 @@ def save_scored_data(df: pd.DataFrame) -> None:
     print("\nRisk level distribution:")
     print(df["risk_level"].value_counts())
 
-    print("\nAnomaly flag distribution:")
-    print(df["anomaly_flag"].value_counts())
+    print("\nSuspicious flag distribution:")
+    print(df["suspicious_flag"].value_counts())
+
+    print("\nTop risk reasons:")
+    print(df["risk_reasons"].value_counts().head(10))
 
 
 def main() -> None:

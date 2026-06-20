@@ -24,13 +24,13 @@ QUERIES = {
     "suspicious_kpis": """
         SELECT
             COUNT(*) AS transaction_count,
-            SUM(anomaly_flag) AS suspicious_transaction_count,
+            SUM(suspicious_flag) AS suspicious_transaction_count,
             ROUND(
-                100.0 * SUM(anomaly_flag) / COUNT(*),
+                100.0 * SUM(suspicious_flag) / COUNT(*),
                 2
             ) AS suspicious_transaction_rate_pct,
             ROUND(
-                SUM(CASE WHEN anomaly_flag = 1 THEN transaction_amount ELSE 0 END),
+                SUM(CASE WHEN suspicious_flag = 1 THEN transaction_amount ELSE 0 END),
                 2
             ) AS suspicious_transaction_amount
         FROM fact_transactions;
@@ -57,9 +57,9 @@ QUERIES = {
             c.channel,
             COUNT(*) AS transaction_count,
             ROUND(SUM(f.transaction_amount), 2) AS total_transaction_amount,
-            SUM(f.anomaly_flag) AS suspicious_transaction_count,
+            SUM(f.suspicious_flag) AS suspicious_transaction_count,
             ROUND(
-                100.0 * SUM(f.anomaly_flag) / COUNT(*),
+                100.0 * SUM(f.suspicious_flag) / COUNT(*),
                 2
             ) AS suspicious_transaction_rate_pct,
             ROUND(AVG(f.risk_score), 2) AS average_risk_score
@@ -74,9 +74,9 @@ QUERIES = {
             tt.transaction_type,
             COUNT(*) AS transaction_count,
             ROUND(SUM(f.transaction_amount), 2) AS total_transaction_amount,
-            SUM(f.anomaly_flag) AS suspicious_transaction_count,
+            SUM(f.suspicious_flag) AS suspicious_transaction_count,
             ROUND(
-                100.0 * SUM(f.anomaly_flag) / COUNT(*),
+                100.0 * SUM(f.suspicious_flag) / COUNT(*),
                 2
             ) AS suspicious_transaction_rate_pct,
             ROUND(AVG(f.risk_score), 2) AS average_risk_score
@@ -91,9 +91,9 @@ QUERIES = {
             l.location,
             COUNT(*) AS transaction_count,
             ROUND(SUM(f.transaction_amount), 2) AS total_transaction_amount,
-            SUM(f.anomaly_flag) AS suspicious_transaction_count,
+            SUM(f.suspicious_flag) AS suspicious_transaction_count,
             ROUND(
-                100.0 * SUM(f.anomaly_flag) / COUNT(*),
+                100.0 * SUM(f.suspicious_flag) / COUNT(*),
                 2
             ) AS suspicious_transaction_rate_pct,
             ROUND(AVG(f.risk_score), 2) AS average_risk_score
@@ -130,7 +130,7 @@ QUERIES = {
             ON f.location_key = l.location_key
         JOIN dim_transaction_type tt
             ON f.transaction_type_key = tt.transaction_type_key
-        WHERE f.anomaly_flag = 1
+        WHERE f.suspicious_flag = 1
         ORDER BY
             f.risk_score DESC,
             f.transaction_amount DESC
@@ -140,9 +140,9 @@ QUERIES = {
         SELECT
             transaction_hour,
             COUNT(*) AS transaction_count,
-            SUM(anomaly_flag) AS suspicious_transaction_count,
+            SUM(suspicious_flag) AS suspicious_transaction_count,
             ROUND(
-                100.0 * SUM(anomaly_flag) / COUNT(*),
+                100.0 * SUM(suspicious_flag) / COUNT(*),
                 2
             ) AS suspicious_transaction_rate_pct,
             ROUND(AVG(risk_score), 2) AS average_risk_score,
@@ -211,7 +211,7 @@ def build_kpi_cards(
         ("Suspicious transactions", f"{int(suspicious['suspicious_transaction_count']):,}"),
         ("Suspicious rate", f"{suspicious['suspicious_transaction_rate_pct']:.2f}%"),
         ("Suspicious amount", f"{suspicious['suspicious_transaction_amount']:,.2f}"),
-        ("Average anomaly score", f"{basic['average_risk_score']:.2f}"),
+        ("Average risk score", f"{basic['average_risk_score']:.2f}"),
     ]
 
     cards_html = ""
