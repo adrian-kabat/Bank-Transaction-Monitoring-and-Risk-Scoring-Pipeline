@@ -1,16 +1,75 @@
-# Bank Transaction Monitoring and Anomaly Detection Pipeline
+# Bank Transaction Monitoring and Rule-Based Risk Scoring Pipeline
 
-## Project overview
+## Project summary
 
-This project demonstrates an end-to-end analytics pipeline for bank transaction monitoring. Since the dataset does not include confirmed fraud labels, the project does not implement supervised fraud classification. Instead, it uses a rule-based risk scoring approach to identify potentially suspicious transactions that may require further review.
+This project demonstrates an end-to-end analytics and reporting pipeline for bank transaction monitoring. It simulates a small analytical system that helps identify potentially suspicious transactions, prioritize cases for further review, and monitor transaction risk KPIs.
 
-The project includes programmatic data ingestion, data cleaning, feature engineering, risk scoring, a Kimball dimensional model, SQL KPI queries, an automated HTML report, a FastAPI mock banking API, and a Power BI dashboard.
+The project includes programmatic data ingestion, data cleaning, feature engineering, rule-based risk scoring, a Kimball dimensional model, SQL KPI queries, an automated HTML report, a FastAPI mock banking API, and a Power BI dashboard.
+
+> Current version uses transparent rule-based risk scoring. The dataset does not contain confirmed fraud labels, so the project does not implement supervised fraud classification. Unsupervised anomaly detection, such as Isolation Forest, is planned as a future extension.
+
+## Business problem
+
+Financial institutions need to monitor transaction activity and identify transactions that may require further review. In many real-world scenarios, confirmed fraud labels are unavailable, delayed, or incomplete. Therefore, analysts often need transparent monitoring logic that helps prioritize potentially suspicious transactions before final confirmation.
+
+This project addresses that scenario by building a reproducible pipeline that assigns a risk score to each transaction and produces analytical outputs for monitoring, reporting, and operational review.
+
+## Business value
+
+The pipeline supports:
+
+* monitoring transaction volume and risk exposure,
+* identifying potentially suspicious transactions,
+* prioritizing high-risk cases for review,
+* analyzing risk patterns by channel, transaction type, location, and hour,
+* generating repeatable KPI reports,
+* preparing structured data for Power BI dashboarding.
+
+## Key results
+
+The project generates:
+
+* cleaned transaction data,
+* risk-scored transaction data,
+* `risk_score`, `suspicious_flag`, and `risk_level`,
+* SQLite analytical warehouse,
+* Kimball dimensional model,
+* SQL KPI outputs,
+* responsive HTML report,
+* Power BI dashboard,
+* FastAPI mock banking API.
+
+## Screenshots
+
+### Power BI — Executive Risk Overview
+
+![Executive Risk Overview](docs/screenshots/powerbi_executive_risk_overview.png)
+
+### Power BI — Risk Drivers
+
+![Risk Drivers](docs/screenshots/powerbi_risk_drivers.png)
+
+### Power BI — Operational Monitoring
+
+![Operational Monitoring](docs/screenshots/powerbi_operational_monitoring.png)
+
+### Automated HTML report
+
+![HTML Report](docs/screenshots/html_report.png)
+
+### Kimball dimensional model
+
+![Kimball Model](docs/screenshots/kimball_model.png)
+
+### FastAPI mock banking API
+
+![FastAPI Docs](docs/screenshots/fastapi_docs.png)
 
 ## Key features
 
 * Programmatic data ingestion from KaggleHub.
 * Data cleaning and feature engineering pipeline in Python.
-* Rule-based transaction risk scoring.
+* Transparent rule-based transaction risk scoring.
 * Kimball dimensional model with fact and dimension tables.
 * SQLite analytical warehouse.
 * SQL KPI queries for transaction monitoring.
