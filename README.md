@@ -31,7 +31,8 @@ The project generates:
 
 * cleaned transaction data,
 * risk-scored transaction data,
-* `risk_score`, `suspicious_flag`, and `risk_level`,
+* `risk_score`, `suspicious_flag`, `risk_level`, and `risk_reasons`,
+* configurable risk scoring rules stored in `config/risk_rules.yaml`,
 * SQLite analytical warehouse,
 * Kimball dimensional model,
 * SQL KPI outputs,
@@ -324,6 +325,8 @@ Main measures and indicators:
 * `transaction_count`
 * `risk_score`
 * `suspicious_flag`
+* `risk_level`
+* `risk_reasons`
 
 ### Dimension tables
 
@@ -347,15 +350,54 @@ docs/kimball_dimensional_model.md
 
 ## Risk scoring method
 
-The project uses a transparent rule-based risk scoring method. The current score is heuristic and should be interpreted as a transaction monitoring signal.
+The project uses transparent rule-based risk scoring to identify transactions that may require further review. Since the dataset does not contain confirmed fraud labels, the generated indicators should not be interpreted as confirmed fraud predictions.
 
-Generated variables:
+Each transaction receives four main risk-related variables:
 
-| Variable          | Description                                                 |
-| ----------------- | ----------------------------------------------------------- |
-| `risk_score`      | Numeric risk score calculated from rule-based indicators    |
-| `suspicious_flag` | Binary flag identifying potentially suspicious transactions |
-| `risk_level`      | Categorical risk level: Low, Medium, High                   |
+| Variable          | Description                                                                          |
+| ----------------- | ------------------------------------------------------------------------------------ |
+| `risk_score`      | Numerical risk score from 0 to 100 calculated from rule-based indicators.            |
+| `suspicious_flag` | Binary flag indicating whether the transaction exceeds the suspiciousness threshold. |
+| `risk_level`      | Categorical risk level: `Low`, `Medium`, or `High`.                                  |
+| `risk_reasons`    | Interpretable reason codes explaining why the transaction received risk points.      |
+
+Example risk reason codes include:
+
+| Reason code                                 | Interpretation                                                  |
+| ------------------------------------------- | --------------------------------------------------------------- |
+| `high_amount_p95`                           | Transaction amount is at or above the 95th percentile.          |
+| `very_high_amount_p99`                      | Transaction amount is at or above the 99th percentile.          |
+| `multiple_login_attempts`                   | The transaction is associated with more than one login attempt. |
+| `long_transaction_duration`                 | Transaction duration is unusually long.                         |
+| `low_account_balance`                       | Account balance is at or below the 5th percentile.              |
+| `night_transaction`                         | Transaction occurred during night hours.                        |
+| `short_interval_since_previous_transaction` | Transaction occurred shortly after the previous transaction.    |
+
+Risk scoring rules are stored in:
+
+```text
+config/risk_rules.yaml
+```
+
+This makes the scoring logic transparent and easy to adjust without modifying the Python source code.
+
+Example configuration fragment:
+
+```yaml
+amount:
+  high_amount_quantile: 0.95
+  high_amount_points: 30
+  very_high_amount_quantile: 0.99
+  very_high_amount_points: 20
+
+classification:
+  suspicious_threshold: 60
+  max_risk_score: 100
+  low_risk_max: 29
+  medium_risk_max: 59
+```
+
+The scoring logic is intentionally separated from the data cleaning stage. This makes the pipeline easier to maintain and allows future extensions, such as unsupervised anomaly detection models.
 
 Detailed documentation is available in:
 
@@ -436,15 +478,17 @@ docs/dashboard_screenshots/
 
 The project generates the following local artifacts:
 
-| Output             | Path                                            | Description                                      |
-| ------------------ | ----------------------------------------------- | ------------------------------------------------ |
-| Clean dataset      | `data/processed/transactions_clean.csv`         | Cleaned transaction data                         |
-| Scored dataset     | `data/processed/transactions_scored.csv`        | Transactions with risk score and suspicious flag |
-| SQLite warehouse   | `warehouse/transaction_monitoring.db`           | Local analytical warehouse                       |
-| HTML report        | `reports/transaction_monitoring_report.html`    | Automated KPI report                             |
-| Power BI exports   | `data/model/*.csv`                              | Model tables exported for Power BI               |
-| API output         | `data/api/transactions_from_api.csv`            | Data fetched from the mock API                   |
-| Power BI dashboard | `powerbi/transaction_monitoring_dashboard.pbix` | Interactive Power BI dashboard                   |
+| Output                   | Path                                            | Description                                                                                                       |
+| ------------------------ | ----------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| Clean dataset            | `data/processed/transactions_clean.csv`         | Cleaned transaction data after standardization, date parsing, validation, deduplication, and feature engineering. |
+| Scored dataset           | `data/processed/transactions_scored.csv`        | Transactions enriched with `risk_score`, `suspicious_flag`, `risk_level`, and `risk_reasons`.                     |
+| Risk rules configuration | `config/risk_rules.yaml`                        | YAML configuration file containing scoring thresholds, quantiles, points, and classification thresholds.          |
+| SQLite warehouse         | `warehouse/transaction_monitoring.db`           | Local analytical warehouse with fact and dimension tables.                                                        |
+| HTML report              | `reports/transaction_monitoring_report.html`    | Automated KPI report generated from the SQLite warehouse.                                                         |
+| Power BI exports         | `data/model/*.csv`                              | Model tables exported for Power BI.                                                                               |
+| API output               | `data/api/transactions_from_api.csv`            | Data fetched from the local FastAPI mock banking API.                                                             |
+| Power BI dashboard       | `powerbi/transaction_monitoring_dashboard.pbix` | Interactive Power BI dashboard with executive, risk driver, and operational monitoring pages.                     |
+
 
 ## Version control notes
 
