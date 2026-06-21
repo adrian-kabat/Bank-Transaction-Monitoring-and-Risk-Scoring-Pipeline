@@ -1,0 +1,15 @@
+.venv/
+__pycache__/
+*.pyc
+.git/
+.github/
+.idea/
+
+data/raw/*
+data/processed/*
+data/model/*
+data/api/*
+warehouse/*
+reports/*.html
+
+*.pbix
