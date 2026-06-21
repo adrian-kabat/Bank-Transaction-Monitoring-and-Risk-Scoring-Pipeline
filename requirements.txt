@@ -7,3 +7,5 @@ sqlalchemy
 PyYAML
 pytest
 scikit-learn
+httpx
+httpx2
