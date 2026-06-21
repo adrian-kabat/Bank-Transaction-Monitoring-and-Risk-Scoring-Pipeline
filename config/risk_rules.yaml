@@ -30,7 +30,7 @@ transaction_frequency:
   short_interval_points: 20
 
 classification:
-  suspicious_threshold: 60
+  suspicious_threshold: 40
   max_risk_score: 100
-  low_risk_max: 29
-  medium_risk_max: 59
+  low_risk_max: 19
+  medium_risk_max: 39
