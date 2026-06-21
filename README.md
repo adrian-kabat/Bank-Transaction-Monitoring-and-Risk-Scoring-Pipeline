@@ -609,6 +609,17 @@ Dashboard screenshots are stored in:
 ```text
 docs/screenshots/
 ```
+## Technical documentation
+
+Additional project documentation is available in the `docs/` directory:
+
+| Document | Description |
+|---|---|
+| `docs/business_assumptions.md` | Business context, monitoring assumptions, and interpretation of risk indicators. |
+| `docs/risk_scoring_method.md` | Rule-based scoring logic, thresholds, points, and reason codes. |
+| `docs/anomaly_detection_method.md` | Isolation Forest anomaly detection approach and comparison with rule-based scoring. |
+| `docs/kimball_dimensional_model.md` | Kimball dimensional model structure and table-level documentation. |
+| `docs/limitations.md` | Project limitations and responsible interpretation of outputs. |
 
 ## Project outputs
 
