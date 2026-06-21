@@ -33,6 +33,13 @@ PIPELINE_STEPS = [
         "script": "04_score_transactions.py",
         "required": True,
     },
+
+    {
+        "name": "Train anomaly model ",
+        "script": "11_train_anomaly_model.py",
+        "required": True,
+    },
+
     {
         "name": "Build Kimball dimensional model",
         "script": "05_Kimball_dimensional_model.py",

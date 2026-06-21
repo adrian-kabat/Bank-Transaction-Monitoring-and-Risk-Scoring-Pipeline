@@ -458,6 +458,39 @@ Detailed documentation is available in:
 ```text
 docs/risk_scoring_method.md
 ```
+## Rule-based scoring vs unsupervised anomaly detection
+
+In addition to transparent rule-based risk scoring, the project includes an unsupervised anomaly detection comparison based on Isolation Forest.
+
+The purpose of this module is not to replace the rule-based scoring logic, but to compare two different monitoring approaches:
+
+| Approach                           | Purpose                                                                                               | Output                                                             |
+| ---------------------------------- | ----------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| Rule-based risk scoring            | Transparent business logic for identifying transactions that require review.                          | `risk_score`, `suspicious_flag`, `risk_level`, `risk_reasons`      |
+| Isolation Forest anomaly detection | Unsupervised model for identifying statistically unusual transactions without confirmed fraud labels. | `ml_anomaly_score`, `ml_anomaly_flag`, `ml_anomaly_decision_score` |
+
+The anomaly detection model uses selected numerical transaction features:
+
+* `transaction_amount`,
+* `transaction_duration`,
+* `login_attempts`,
+* `account_balance`,
+* `minutes_since_previous_transaction`,
+* `transaction_hour`.
+
+The model configuration is stored in:
+
+```text
+config/anomaly_model.yaml
+```
+
+The comparison output is saved to:
+
+```text
+reports/anomaly_model_comparison.csv
+```
+
+This allows the project to compare transactions flagged by transparent business rules with transactions identified as unusual by an unsupervised machine learning model.
 
 ## SQL KPI queries
 
@@ -542,6 +575,8 @@ The project generates the following local artifacts:
 | Power BI exports         | `data/model/*.csv`                              | Model tables exported for Power BI.                                                                               |
 | API output               | `data/api/transactions_from_api.csv`            | Data fetched from the local FastAPI mock banking API.                                                             |
 | Power BI dashboard       | `powerbi/transaction_monitoring_dashboard.pbix` | Interactive Power BI dashboard with executive, risk driver, and operational monitoring pages.                     |
+| Transactions with anomaly model | `data/processed/transactions_with_anomaly_model.csv` | Scored transactions enriched with Isolation Forest anomaly detection outputs: `ml_anomaly_score`, `ml_anomaly_flag`, and `ml_anomaly_decision_score`. |
+| Anomaly model comparison | `reports/anomaly_model_comparison.csv` | Summary comparing rule-based suspicious transactions with ML-based anomaly flags. |
 
 
 ## Version control notes
@@ -569,13 +604,11 @@ The generated `suspicious_flag` is a transaction monitoring signal and should no
 
 Potential extensions include:
 
-* adding an unsupervised anomaly detection model, such as Isolation Forest,
-* comparing rule-based risk scoring with machine learning-based anomaly detection,
-* adding model evaluation and stability monitoring,
-* expanding automated tests for individual transformation functions,
-* adding API tests for FastAPI endpoints,
-* adding a Streamlit dashboard as a lightweight web-based alternative to Power BI,
-* publishing the API or report through a lightweight cloud deployment.
+- improving anomaly detection evaluation and model stability monitoring,
+- expanding automated tests for individual transformation functions,
+- adding API tests for FastAPI endpoints,
+- adding a Streamlit dashboard as a lightweight web-based alternative to Power BI,
+- publishing the API or report through a lightweight cloud deployment.
 
 ## Portfolio summary
 
