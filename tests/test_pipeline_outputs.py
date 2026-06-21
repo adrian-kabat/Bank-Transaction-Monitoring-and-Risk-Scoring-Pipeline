@@ -9,7 +9,8 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 SCORED_DATA_PATH = PROJECT_ROOT / "data" / "processed" / "transactions_scored.csv"
 WAREHOUSE_PATH = PROJECT_ROOT / "warehouse" / "transaction_monitoring.db"
 HTML_REPORT_PATH = PROJECT_ROOT / "reports" / "transaction_monitoring_report.html"
-
+ANOMALY_DATA_PATH = PROJECT_ROOT / "data" / "processed" / "transactions_with_anomaly_model.csv"
+ANOMALY_COMPARISON_PATH = PROJECT_ROOT / "reports" / "anomaly_model_comparison.csv"
 
 def test_scored_transactions_file_exists() -> None:
     assert SCORED_DATA_PATH.exists(), "Scored transactions file was not created."
@@ -92,3 +93,58 @@ def test_sqlite_warehouse_contains_fact_and_dimension_tables() -> None:
 
 def test_html_report_exists() -> None:
     assert HTML_REPORT_PATH.exists(), "HTML report was not created."
+
+def test_transactions_with_anomaly_model_file_exists() -> None:
+    assert ANOMALY_DATA_PATH.exists(), "Transactions with anomaly model file was not created."
+
+
+def test_transactions_with_anomaly_model_contains_required_columns() -> None:
+    df = pd.read_csv(ANOMALY_DATA_PATH)
+
+    required_columns = {
+        "ml_anomaly_score",
+        "ml_anomaly_flag",
+        "ml_anomaly_decision_score",
+    }
+
+    missing_columns = required_columns - set(df.columns)
+
+    assert not missing_columns, f"Missing anomaly model columns: {missing_columns}"
+
+
+def test_ml_anomaly_score_is_within_expected_range() -> None:
+    df = pd.read_csv(ANOMALY_DATA_PATH)
+
+    assert df["ml_anomaly_score"].between(0, 100).all()
+
+
+def test_ml_anomaly_flag_is_binary() -> None:
+    df = pd.read_csv(ANOMALY_DATA_PATH)
+
+    allowed_values = {0, 1}
+    actual_values = set(df["ml_anomaly_flag"].dropna().unique())
+
+    assert actual_values.issubset(allowed_values)
+
+
+def test_anomaly_model_comparison_file_exists() -> None:
+    assert ANOMALY_COMPARISON_PATH.exists(), "Anomaly model comparison file was not created."
+
+
+def test_anomaly_model_comparison_contains_expected_metrics() -> None:
+    df = pd.read_csv(ANOMALY_COMPARISON_PATH)
+
+    expected_metrics = {
+        "total_transactions",
+        "rule_based_suspicious_transactions",
+        "ml_anomaly_transactions",
+        "flagged_by_both_methods",
+        "rule_based_only",
+        "ml_only",
+    }
+
+    actual_metrics = set(df["metric"])
+
+    missing_metrics = expected_metrics - actual_metrics
+
+    assert not missing_metrics, f"Missing comparison metrics: {missing_metrics}"
