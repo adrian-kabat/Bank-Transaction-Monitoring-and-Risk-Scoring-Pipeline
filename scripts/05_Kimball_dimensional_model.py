@@ -5,7 +5,7 @@ import pandas as pd
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-PROCESSED_DATA_PATH = PROJECT_ROOT / "data" / "processed" / "transactions_scored.csv"
+PROCESSED_DATA_PATH = (PROJECT_ROOT  / "data" / "processed" / "transactions_with_anomaly_model.csv")
 WAREHOUSE_DIR = PROJECT_ROOT / "warehouse"
 WAREHOUSE_PATH = WAREHOUSE_DIR / "transaction_monitoring.db"
 
@@ -15,7 +15,7 @@ def load_processed_data() -> pd.DataFrame:
     if not PROCESSED_DATA_PATH.exists():
         raise FileNotFoundError(
             f"Processed data file not found: {PROCESSED_DATA_PATH}. "
-            "Run scripts/04_score_transactions.py first."
+            "Run scripts/04_score_transactions.py and scripts/11_train_anomaly_model.py first."
         )
 
     df = pd.read_csv(PROCESSED_DATA_PATH)
@@ -216,6 +216,9 @@ def build_fact_transactions(
             "suspicious_flag",
             "risk_level",
             "risk_reasons",
+            "ml_anomaly_score",
+            "ml_anomaly_flag",
+            "ml_anomaly_decision_score",
         ]
     ]
 

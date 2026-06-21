@@ -641,7 +641,7 @@ The project generates the following local artifacts:
 
 ## Tests and continuous integration
 
-The project includes automated pytest checks for key pipeline outputs, including scored transactions, risk columns, warehouse tables, generated reports, and anomaly model outputs.
+The project includes automated pytest checks for key pipeline outputs and FastAPI endpoints. The tests validate scored transaction outputs, risk columns, anomaly model outputs, warehouse tables, generated reports, and selected API responses.
 
 Run tests locally:
 
@@ -688,7 +688,6 @@ Potential extensions include:
 
 * improving anomaly detection evaluation and model stability monitoring,
 * expanding automated tests for individual transformation functions,
-* adding API tests for FastAPI endpoints,
 * adding a Streamlit dashboard as a lightweight web-based alternative to Power BI,
 * publishing the API or report through a lightweight cloud deployment.
 

@@ -11,6 +11,7 @@ WAREHOUSE_PATH = PROJECT_ROOT / "warehouse" / "transaction_monitoring.db"
 HTML_REPORT_PATH = PROJECT_ROOT / "reports" / "transaction_monitoring_report.html"
 ANOMALY_DATA_PATH = PROJECT_ROOT / "data" / "processed" / "transactions_with_anomaly_model.csv"
 ANOMALY_COMPARISON_PATH = PROJECT_ROOT / "reports" / "anomaly_model_comparison.csv"
+MODEL_FACT_TRANSACTIONS_PATH = PROJECT_ROOT / "data" / "model" / "fact_transactions.csv"
 
 def test_scored_transactions_file_exists() -> None:
     assert SCORED_DATA_PATH.exists(), "Scored transactions file was not created."
@@ -148,3 +149,41 @@ def test_anomaly_model_comparison_contains_expected_metrics() -> None:
     missing_metrics = expected_metrics - actual_metrics
 
     assert not missing_metrics, f"Missing comparison metrics: {missing_metrics}"
+
+def test_fact_transactions_contains_anomaly_model_columns() -> None:
+    required_columns = {
+        "ml_anomaly_score",
+        "ml_anomaly_flag",
+        "ml_anomaly_decision_score",
+    }
+
+    with sqlite3.connect(WAREHOUSE_PATH) as connection:
+        fact_transactions = pd.read_sql_query(
+            "SELECT * FROM fact_transactions LIMIT 1;",
+            connection,
+        )
+
+    missing_columns = required_columns - set(fact_transactions.columns)
+
+    assert not missing_columns, (
+        f"Missing anomaly model columns in fact_transactions: {missing_columns}"
+    )
+
+def test_powerbi_fact_export_contains_anomaly_model_columns() -> None:
+    assert MODEL_FACT_TRANSACTIONS_PATH.exists(), (
+        "Power BI fact_transactions export was not created."
+    )
+
+    df = pd.read_csv(MODEL_FACT_TRANSACTIONS_PATH)
+
+    required_columns = {
+        "ml_anomaly_score",
+        "ml_anomaly_flag",
+        "ml_anomaly_decision_score",
+    }
+
+    missing_columns = required_columns - set(df.columns)
+
+    assert not missing_columns, (
+        f"Missing anomaly model columns in Power BI export: {missing_columns}"
+    )
