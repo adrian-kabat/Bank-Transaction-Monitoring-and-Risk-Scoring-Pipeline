@@ -6,9 +6,9 @@
 
 This project demonstrates an end-to-end analytics and reporting pipeline for bank transaction monitoring. It simulates a small analytical system that helps identify potentially suspicious transactions, prioritize cases for further review, and monitor transaction risk KPIs.
 
-The project includes programmatic data ingestion, data cleaning, feature engineering, rule-based risk scoring, a Kimball dimensional model, SQL KPI queries, an automated HTML report, a FastAPI mock banking API, and a Power BI dashboard.
+The project includes programmatic data ingestion, data cleaning, feature engineering, configurable rule-based risk scoring, interpretable risk reason codes, an Isolation Forest anomaly detection comparison, a Kimball dimensional model, SQL KPI queries, an automated HTML report, a FastAPI mock banking API, Docker support, automated tests, GitHub Actions, and a Power BI dashboard.
 
-> Current version uses transparent rule-based risk scoring. The dataset does not contain confirmed fraud labels, so the project does not implement supervised fraud classification. Unsupervised anomaly detection, such as Isolation Forest, is planned as a future extension.
+> The dataset does not contain confirmed fraud labels. Therefore, the project does not implement supervised fraud classification. The generated risk indicators should be interpreted as transaction monitoring signals, not confirmed fraud predictions.
 
 ## Business problem
 
@@ -23,7 +23,9 @@ The pipeline supports:
 * monitoring transaction volume and risk exposure,
 * identifying potentially suspicious transactions,
 * prioritizing high-risk cases for review,
+* explaining risk scores with interpretable reason codes,
 * analyzing risk patterns by channel, transaction type, location, and hour,
+* comparing transparent business rules with unsupervised anomaly detection,
 * generating repeatable KPI reports,
 * preparing structured data for Power BI dashboarding.
 
@@ -35,12 +37,36 @@ The project generates:
 * risk-scored transaction data,
 * `risk_score`, `suspicious_flag`, `risk_level`, and `risk_reasons`,
 * configurable risk scoring rules stored in `config/risk_rules.yaml`,
+* Isolation Forest anomaly detection outputs,
+* comparison between rule-based scoring and ML-based anomaly detection,
 * SQLite analytical warehouse,
 * Kimball dimensional model,
 * SQL KPI outputs,
 * responsive HTML report,
 * Power BI dashboard,
-* FastAPI mock banking API.
+* FastAPI mock banking API,
+* Docker-based execution,
+* automated pytest checks,
+* GitHub Actions workflow for continuous testing.
+
+## Architecture
+
+```mermaid
+flowchart TD
+    A[KaggleHub dataset] --> B[Raw data]
+    B --> C[Python ETL]
+    C --> D[Data cleaning and feature engineering]
+    D --> E[Configurable rule-based risk scoring]
+    E --> F[Risk reason codes]
+    E --> G[Isolation Forest anomaly detection comparison]
+    F --> H[Kimball dimensional model]
+    H --> I[SQLite analytical warehouse]
+    I --> J[SQL KPI queries]
+    J --> K[Automated HTML report]
+    H --> L[Power BI dashboard]
+    I --> M[FastAPI mock banking API]
+    G --> N[Anomaly model comparison report]
+```
 
 ## Screenshots
 
@@ -73,23 +99,34 @@ The project generates:
 * Programmatic data ingestion from KaggleHub.
 * Data cleaning and feature engineering pipeline in Python.
 * Transparent rule-based transaction risk scoring.
+* Interpretable risk reason codes.
+* YAML-based scoring configuration.
+* Isolation Forest anomaly detection comparison.
 * Kimball dimensional model with fact and dimension tables.
 * SQLite analytical warehouse.
 * SQL KPI queries for transaction monitoring.
 * Automated responsive HTML report.
 * Power BI dashboard with three analytical pages.
 * FastAPI mock banking API.
+* Docker support for the pipeline and API.
+* Automated pytest checks.
+* GitHub Actions workflow for continuous testing.
 * One-command pipeline orchestration.
 
 ## Tech stack
 
 * Python
 * pandas
+* scikit-learn
+* PyYAML
 * KaggleHub
 * SQLite
 * SQL
 * FastAPI
 * Uvicorn
+* pytest
+* Docker
+* GitHub Actions
 * Power BI
 * Git/GitHub
 
@@ -107,52 +144,67 @@ The data is downloaded programmatically using KaggleHub. Raw data files are excl
 
 The dataset does not contain a confirmed fraud label. Therefore, the project does not classify transactions as confirmed fraud or non-fraud.
 
-Instead, the project focuses on transaction monitoring and rule-based anomaly detection. The generated `suspicious_flag` should be interpreted as a signal for potentially suspicious transactions, not as a confirmed fraud label.
+Instead, the project focuses on transaction monitoring and risk prioritization. It uses two complementary approaches:
 
-The risk scoring logic is intentionally separated from the data cleaning pipeline to make future development easier.
+1. **Rule-based risk scoring** — transparent business logic that assigns risk points and reason codes.
+2. **Unsupervised anomaly detection** — Isolation Forest model used as a comparison layer for identifying statistically unusual transactions.
+
+The generated `suspicious_flag` and `ml_anomaly_flag` should be interpreted as monitoring signals, not confirmed fraud labels.
 
 ## Pipeline
 
 ```text
 KaggleHub
-    ↓
+↓
 Raw data
-    ↓
+↓
+Data inspection and profiling
+↓
 Data cleaning and feature engineering
-    ↓
-Rule-based risk scoring
-    ↓
+↓
+Configurable rule-based risk scoring
+↓
+Risk reason codes
+↓
+Isolation Forest anomaly detection comparison
+↓
 Kimball dimensional model
-    ↓
+↓
 SQLite analytical warehouse
-    ↓
+↓
 SQL KPI queries
-    ↓
+↓
 Automated HTML report
-    ↓
+↓
 CSV export for Power BI
-    ↓
+↓
 Power BI dashboard
 ```
 
-The FastAPI mock API is implemented as a separate module and can be used to simulate ingestion from a banking source system.
+The FastAPI mock API is implemented as a separate module and can be used to simulate access to a banking source system.
 
 ## Repository structure
 
 ```text
-financial-fraud-analytics-pipeline/
+Bank-Transaction-Monitoring-and-Risk-Scoring-Pipeline/
+├── .github/
+│   └── workflows/
+│       └── tests.yml
 ├── app/
 │   ├── main.py
 │   └── services/
 │       ├── __init__.py
 │       └── data_service.py
+├── config/
+│   ├── anomaly_model.yaml
+│   └── risk_rules.yaml
 ├── data/
 │   ├── api/
 │   ├── model/
 │   ├── processed/
 │   └── raw/
 ├── docs/
-│   ├── dashboard_screenshots/
+│   ├── screenshots/
 │   ├── kimball_dimensional_model.md
 │   └── risk_scoring_method.md
 ├── powerbi/
@@ -169,22 +221,28 @@ financial-fraud-analytics-pipeline/
 │   ├── 07_generate_html_report.py
 │   ├── 08_export_model_tables.py
 │   ├── 09_fetch_from_api.py
-│   └── 10_run_pipeline.py
+│   ├── 10_run_pipeline.py
+│   └── 11_train_anomaly_model.py
 ├── sql/
 │   └── 01_kpi_queries.sql
+├── tests/
+│   └── test_pipeline_outputs.py
 ├── warehouse/
+├── .dockerignore
 ├── .gitignore
+├── Dockerfile
 ├── README.md
+├── docker-compose.yml
 └── requirements.txt
 ```
 
-## How to run
+## How to run locally
 
 ### 1. Clone the repository
 
 ```bash
-git clone <repository-url>
-cd financial-fraud-analytics-pipeline
+git clone https://github.com/adrian-kabat/Bank-Transaction-Monitoring-and-Risk-Scoring-Pipeline.git
+cd Bank-Transaction-Monitoring-and-Risk-Scoring-Pipeline
 ```
 
 ### 2. Create and activate a virtual environment
@@ -219,12 +277,15 @@ This command executes the main analytical workflow:
 
 1. downloads raw data from KaggleHub,
 2. inspects and profiles raw data,
-3. cleans transaction data,
-4. applies rule-based risk scoring,
-5. builds the Kimball dimensional model,
-6. tests SQL KPI queries,
-7. generates the automated HTML report,
-8. exports model tables for Power BI.
+3. cleans and validates transaction data,
+4. applies configurable rule-based risk scoring,
+5. adds interpretable risk reason codes,
+6. runs the Isolation Forest anomaly detection comparison,
+7. builds the Kimball dimensional model,
+8. creates the SQLite analytical warehouse,
+9. tests SQL KPI queries,
+10. generates the automated HTML report,
+11. exports model tables for Power BI.
 
 ### 5. Open generated outputs
 
@@ -233,8 +294,10 @@ After the pipeline completes, the main generated files are:
 ```text
 data/processed/transactions_clean.csv
 data/processed/transactions_scored.csv
+data/processed/transactions_with_anomaly_model.csv
 warehouse/transaction_monitoring.db
 reports/transaction_monitoring_report.html
+reports/anomaly_model_comparison.csv
 data/model/*.csv
 ```
 
@@ -255,17 +318,6 @@ docker compose build
 ```bash
 docker compose run --rm pipeline
 ```
-
-This command executes the complete workflow:
-
-1. downloads the raw dataset,
-2. cleans and validates transaction data,
-3. applies configurable rule-based risk scoring,
-4. builds the Kimball dimensional model,
-5. creates the SQLite analytical warehouse,
-6. runs SQL KPI queries,
-7. generates the automated HTML report,
-8. exports model tables for Power BI.
 
 ### Run the FastAPI mock banking API
 
@@ -292,6 +344,7 @@ Dockerfile
 docker-compose.yml
 .dockerignore
 ```
+
 ## Mock banking API
 
 The project includes a FastAPI-based mock banking API that exposes cleaned and risk-scored transaction data. The API simulates a banking source system used by the analytical pipeline.
@@ -338,8 +391,6 @@ You can also open the summary endpoint:
 ```text
 http://127.0.0.1:8000/summary
 ```
-
-The root URL may return `404 Not Found` if no `/` endpoint is defined. Use `/docs`, `/health`, or the listed endpoints to test the API.
 
 ### Fetch data from the API
 
@@ -451,13 +502,14 @@ classification:
   medium_risk_max: 59
 ```
 
-The scoring logic is intentionally separated from the data cleaning stage. This makes the pipeline easier to maintain and allows future extensions, such as unsupervised anomaly detection models.
+The scoring logic is intentionally separated from the data cleaning stage. This makes the pipeline easier to maintain and allows future extensions.
 
 Detailed documentation is available in:
 
 ```text
 docs/risk_scoring_method.md
 ```
+
 ## Rule-based scoring vs unsupervised anomaly detection
 
 In addition to transparent rule-based risk scoring, the project includes an unsupervised anomaly detection comparison based on Isolation Forest.
@@ -471,12 +523,12 @@ The purpose of this module is not to replace the rule-based scoring logic, but t
 
 The anomaly detection model uses selected numerical transaction features:
 
-* `transaction_amount`,
-* `transaction_duration`,
-* `login_attempts`,
-* `account_balance`,
-* `minutes_since_previous_transaction`,
-* `transaction_hour`.
+* `transaction_amount`
+* `transaction_duration`
+* `login_attempts`
+* `account_balance`
+* `minutes_since_previous_transaction`
+* `transaction_hour`
 
 The model configuration is stored in:
 
@@ -540,14 +592,9 @@ The report includes:
 
 The Power BI dashboard contains three analytical pages:
 
-1. **Executive Risk Overview**
-   High-level summary of transaction volume, suspicious activity, and risk exposure.
-
-2. **Risk Drivers**
-   Analysis of risk indicators across channels, transaction types, locations, and time patterns.
-
-3. **Operational Monitoring**
-   Operational view of high-risk segments and transactions requiring further review.
+1. **Executive Risk Overview** — high-level summary of transaction volume, suspicious activity, and risk exposure.
+2. **Risk Drivers** — analysis of risk indicators across channels, transaction types, locations, and time patterns.
+3. **Operational Monitoring** — operational view of high-risk segments and transactions requiring further review.
 
 The Power BI file is stored in:
 
@@ -555,29 +602,47 @@ The Power BI file is stored in:
 powerbi/transaction_monitoring_dashboard.pbix
 ```
 
-Dashboard screenshots can be stored in:
+Dashboard screenshots are stored in:
 
 ```text
-docs/dashboard_screenshots/
+docs/screenshots/
 ```
 
 ## Project outputs
 
 The project generates the following local artifacts:
 
-| Output                   | Path                                            | Description                                                                                                       |
-| ------------------------ | ----------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
-| Clean dataset            | `data/processed/transactions_clean.csv`         | Cleaned transaction data after standardization, date parsing, validation, deduplication, and feature engineering. |
-| Scored dataset           | `data/processed/transactions_scored.csv`        | Transactions enriched with `risk_score`, `suspicious_flag`, `risk_level`, and `risk_reasons`.                     |
-| Risk rules configuration | `config/risk_rules.yaml`                        | YAML configuration file containing scoring thresholds, quantiles, points, and classification thresholds.          |
-| SQLite warehouse         | `warehouse/transaction_monitoring.db`           | Local analytical warehouse with fact and dimension tables.                                                        |
-| HTML report              | `reports/transaction_monitoring_report.html`    | Automated KPI report generated from the SQLite warehouse.                                                         |
-| Power BI exports         | `data/model/*.csv`                              | Model tables exported for Power BI.                                                                               |
-| API output               | `data/api/transactions_from_api.csv`            | Data fetched from the local FastAPI mock banking API.                                                             |
-| Power BI dashboard       | `powerbi/transaction_monitoring_dashboard.pbix` | Interactive Power BI dashboard with executive, risk driver, and operational monitoring pages.                     |
+| Output                          | Path                                                 | Description                                                                                                                                           |
+| ------------------------------- | ---------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Clean dataset                   | `data/processed/transactions_clean.csv`              | Cleaned transaction data after standardization, date parsing, validation, deduplication, and feature engineering.                                     |
+| Scored dataset                  | `data/processed/transactions_scored.csv`             | Transactions enriched with `risk_score`, `suspicious_flag`, `risk_level`, and `risk_reasons`.                                                         |
 | Transactions with anomaly model | `data/processed/transactions_with_anomaly_model.csv` | Scored transactions enriched with Isolation Forest anomaly detection outputs: `ml_anomaly_score`, `ml_anomaly_flag`, and `ml_anomaly_decision_score`. |
-| Anomaly model comparison | `reports/anomaly_model_comparison.csv` | Summary comparing rule-based suspicious transactions with ML-based anomaly flags. |
+| Risk rules configuration        | `config/risk_rules.yaml`                             | YAML configuration file containing scoring thresholds, quantiles, points, and classification thresholds.                                              |
+| Anomaly model configuration     | `config/anomaly_model.yaml`                          | YAML configuration file containing Isolation Forest settings and selected numerical features.                                                         |
+| SQLite warehouse                | `warehouse/transaction_monitoring.db`                | Local analytical warehouse with fact and dimension tables.                                                                                            |
+| HTML report                     | `reports/transaction_monitoring_report.html`         | Automated KPI report generated from the SQLite warehouse.                                                                                             |
+| Anomaly model comparison        | `reports/anomaly_model_comparison.csv`               | Summary comparing rule-based suspicious transactions with ML-based anomaly flags.                                                                     |
+| Power BI exports                | `data/model/*.csv`                                   | Model tables exported for Power BI.                                                                                                                   |
+| API output                      | `data/api/transactions_from_api.csv`                 | Data fetched from the local FastAPI mock banking API.                                                                                                 |
+| Power BI dashboard              | `powerbi/transaction_monitoring_dashboard.pbix`      | Interactive Power BI dashboard with executive, risk driver, and operational monitoring pages.                                                         |
 
+## Tests and continuous integration
+
+The project includes automated pytest checks for key pipeline outputs, including scored transactions, risk columns, warehouse tables, generated reports, and anomaly model outputs.
+
+Run tests locally:
+
+```bash
+pytest
+```
+
+The repository also includes a GitHub Actions workflow:
+
+```text
+.github/workflows/tests.yml
+```
+
+The workflow installs dependencies, runs the pipeline, and executes tests on GitHub after pushing changes.
 
 ## Version control notes
 
@@ -598,18 +663,22 @@ This keeps the repository lightweight and reproducible.
 
 The dataset does not include confirmed fraud labels. Therefore, the project does not implement supervised fraud classification.
 
-The generated `suspicious_flag` is a transaction monitoring signal and should not be interpreted as confirmed fraud. The current `risk_score` is based on a heuristic rule-based approach and is intended for analytical and portfolio purposes.
+The generated `suspicious_flag` is a transaction monitoring signal and should not be interpreted as confirmed fraud.
+
+The current `risk_score` is based on a heuristic rule-based approach and is intended for analytical and portfolio purposes.
+
+The Isolation Forest module is used as an unsupervised anomaly detection comparison. It identifies statistically unusual transactions, but it does not confirm fraud.
 
 ## Future improvements
 
 Potential extensions include:
 
-- improving anomaly detection evaluation and model stability monitoring,
-- expanding automated tests for individual transformation functions,
-- adding API tests for FastAPI endpoints,
-- adding a Streamlit dashboard as a lightweight web-based alternative to Power BI,
-- publishing the API or report through a lightweight cloud deployment.
+* improving anomaly detection evaluation and model stability monitoring,
+* expanding automated tests for individual transformation functions,
+* adding API tests for FastAPI endpoints,
+* adding a Streamlit dashboard as a lightweight web-based alternative to Power BI,
+* publishing the API or report through a lightweight cloud deployment.
 
 ## Portfolio summary
 
-This project demonstrates the ability to design and implement an end-to-end analytics workflow, including data ingestion, data preparation, dimensional modeling, SQL analytics, report automation, API development, and Power BI dashboarding.
+This project demonstrates the ability to design and implement an end-to-end analytics workflow, including data ingestion, data preparation, configurable risk scoring, interpretable reason codes, unsupervised anomaly detection comparison, dimensional modeling, SQL analytics, report automation, API development, automated testing, Docker-based execution, GitHub Actions, and Power BI dashboarding.
