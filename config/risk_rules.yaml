@@ -25,6 +25,7 @@ transaction_hour:
   night_transaction_points: 10
 
 transaction_frequency:
+  enabled: false
   short_interval_minutes: 10
   short_interval_points: 20
 

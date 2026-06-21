@@ -107,12 +107,13 @@ def add_rule_based_risk_score(df: pd.DataFrame, rules: dict) -> pd.DataFrame:
         "night_transaction",
     )
 
-    add_risk(
-        df["minutes_since_previous_transaction"]
-        <= rules["transaction_frequency"]["short_interval_minutes"],
-        rules["transaction_frequency"]["short_interval_points"],
-        "short_interval_since_previous_transaction",
-    )
+    if rules["transaction_frequency"]["enabled"]:
+        add_risk(
+            df["minutes_since_previous_transaction"]
+            <= rules["transaction_frequency"]["short_interval_minutes"],
+            rules["transaction_frequency"]["short_interval_points"],
+            "short_interval_since_previous_transaction",
+        )
 
     df["risk_score"] = df["risk_score"].clip(
         upper=rules["classification"]["max_risk_score"]
