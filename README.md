@@ -240,6 +240,58 @@ data/model/*.csv
 
 Generated data files, warehouse files, and HTML reports are excluded from version control.
 
+## How to run with Docker
+
+The project can also be executed with Docker. This provides a reproducible way to run the analytical pipeline and the FastAPI mock banking API without manually configuring the local Python environment.
+
+### Build Docker images
+
+```bash
+docker compose build
+```
+
+### Run the full analytical pipeline
+
+```bash
+docker compose run --rm pipeline
+```
+
+This command executes the complete workflow:
+
+1. downloads the raw dataset,
+2. cleans and validates transaction data,
+3. applies configurable rule-based risk scoring,
+4. builds the Kimball dimensional model,
+5. creates the SQLite analytical warehouse,
+6. runs SQL KPI queries,
+7. generates the automated HTML report,
+8. exports model tables for Power BI.
+
+### Run the FastAPI mock banking API
+
+```bash
+docker compose up api
+```
+
+After starting the API, open the interactive API documentation:
+
+```text
+http://127.0.0.1:8000/docs
+```
+
+To stop the API, press:
+
+```text
+Ctrl + C
+```
+
+The Docker setup uses the following files:
+
+```text
+Dockerfile
+docker-compose.yml
+.dockerignore
+```
 ## Mock banking API
 
 The project includes a FastAPI-based mock banking API that exposes cleaned and risk-scored transaction data. The API simulates a banking source system used by the analytical pipeline.
@@ -517,14 +569,12 @@ The generated `suspicious_flag` is a transaction monitoring signal and should no
 
 Potential extensions include:
 
-* configurable risk scoring rules,
-* moving scoring thresholds to a YAML or JSON configuration file,
-* adding risk reason codes,
-* comparing rule-based scoring with unsupervised anomaly detection,
-* adding an Isolation Forest model,
-* adding Docker support,
-* adding automated tests,
-* adding a Streamlit dashboard,
+* adding an unsupervised anomaly detection model, such as Isolation Forest,
+* comparing rule-based risk scoring with machine learning-based anomaly detection,
+* adding model evaluation and stability monitoring,
+* expanding automated tests for individual transformation functions,
+* adding API tests for FastAPI endpoints,
+* adding a Streamlit dashboard as a lightweight web-based alternative to Power BI,
 * publishing the API or report through a lightweight cloud deployment.
 
 ## Portfolio summary
