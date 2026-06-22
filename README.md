@@ -28,6 +28,7 @@ The pipeline supports:
 * comparing transparent business rules with unsupervised anomaly detection,
 * generating repeatable KPI reports,
 * preparing structured data for Power BI dashboarding.
+* segmenting risk-weighted financial exposure across merchants, channels, transaction types, and locations.
 
 ## Key results
 
@@ -70,17 +71,21 @@ flowchart TD
 
 ## Screenshots
 
-### Power BI — Executive Risk Overview
+### Power BI — Risk Monitoring Overview
 
-![Executive Risk Overview](docs/screenshots/page_1_executive_risk_overview.png)
+![Risk Monitoring Overview](docs/screenshots/page_1_risk_monitoring_overview.png)
 
-### Power BI — Risk Drivers
+### Power BI — Alert Review Queue
 
-![Risk Drivers](docs/screenshots/page_2_risk_drivers.png)
+![Alert Review Queue](docs/screenshots/page_2_alert_review_queue.png)
 
-### Power BI — Operational Monitoring
+### Power BI — Rule-Based vs ML Signal Comparison
 
-![Operational Monitoring](docs/screenshots/page_3_operational_monitoring.png)
+![Rule-Based vs ML Signal Comparison](docs/screenshots/page_3_rule_based_vs_ml_signal_comparison.png)
+
+### Power BI — Risk Exposure Segmentation
+
+![Risk Exposure Segmentation](docs/screenshots/page_4_risk_exposure_segmentation.png)
 
 ### Automated HTML report
 
@@ -94,6 +99,7 @@ flowchart TD
 
 ![FastAPI Docs](docs/screenshots/fastapi_docs.png)
 
+
 ## Key features
 
 * Programmatic data ingestion from KaggleHub.
@@ -106,7 +112,7 @@ flowchart TD
 * SQLite analytical warehouse.
 * SQL KPI queries for transaction monitoring.
 * Automated responsive HTML report.
-* Power BI dashboard with three analytical pages.
+* Power BI dashboard with four decision-oriented analytical pages.
 * FastAPI mock banking API.
 * Docker support for the pipeline and API.
 * Automated pytest checks.
@@ -592,11 +598,12 @@ The report includes:
 
 ## Power BI dashboard
 
-The Power BI dashboard contains three analytical pages:
+The Power BI dashboard contains four analytical pages designed to support transaction monitoring, alert review, model comparison, and risk exposure analysis.
 
-1. **Executive Risk Overview** — high-level summary of transaction volume, suspicious activity, and risk exposure.
-2. **Risk Drivers** — analysis of risk indicators across channels, transaction types, locations, and time patterns.
-3. **Operational Monitoring** — operational view of high-risk segments and transactions requiring further review.
+1. **Risk Monitoring Overview** — high-level monitoring page showing transaction volume, rule-based alert rate, top risk reasons, risk by channel, and the high-priority review queue.
+2. **Alert Review Queue** — operational page for reviewing prioritized transactions together with risk scores, risk levels, reason codes, anomaly scores, alert categories, and review priority.
+3. **Rule-Based vs ML Signal Comparison** — diagnostic page comparing transparent rule-based scoring with Isolation Forest anomaly detection using summary cards and a risk score vs ML anomaly score scatter plot.
+4. **Risk Exposure Segmentation** — segmentation page showing where risk-weighted financial exposure concentrates across merchants, locations, channels, transaction types, and other dimensions.
 
 The Power BI file is stored in:
 
@@ -609,6 +616,7 @@ Dashboard screenshots are stored in:
 ```text
 docs/screenshots/
 ```
+
 ## Technical documentation
 
 Additional project documentation is available in the `docs/` directory:
@@ -625,19 +633,19 @@ Additional project documentation is available in the `docs/` directory:
 
 The project generates the following local artifacts:
 
-| Output                          | Path                                                 | Description                                                                                                                                           |
-| ------------------------------- | ---------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Clean dataset                   | `data/processed/transactions_clean.csv`              | Cleaned transaction data after standardization, date parsing, validation, deduplication, and feature engineering.                                     |
-| Scored dataset                  | `data/processed/transactions_scored.csv`             | Transactions enriched with `risk_score`, `suspicious_flag`, `risk_level`, and `risk_reasons`.                                                         |
-| Transactions with anomaly model | `data/processed/transactions_with_anomaly_model.csv` | Scored transactions enriched with Isolation Forest anomaly detection outputs: `ml_anomaly_score`, `ml_anomaly_flag`, and `ml_anomaly_decision_score`. |
-| Risk rules configuration        | `config/risk_rules.yaml`                             | YAML configuration file containing scoring thresholds, quantiles, points, and classification thresholds.                                              |
-| Anomaly model configuration     | `config/anomaly_model.yaml`                          | YAML configuration file containing Isolation Forest settings and selected numerical features.                                                         |
-| SQLite warehouse                | `warehouse/transaction_monitoring.db`                | Local analytical warehouse with fact and dimension tables.                                                                                            |
-| HTML report                     | `reports/transaction_monitoring_report.html`         | Automated KPI report generated from the SQLite warehouse.                                                                                             |
-| Anomaly model comparison        | `reports/anomaly_model_comparison.csv`               | Summary comparing rule-based suspicious transactions with ML-based anomaly flags.                                                                     |
-| Power BI exports                | `data/model/*.csv`                                   | Model tables exported for Power BI.                                                                                                                   |
-| API output                      | `data/api/transactions_from_api.csv`                 | Data fetched from the local FastAPI mock banking API.                                                                                                 |
-| Power BI dashboard              | `powerbi/transaction_monitoring_dashboard.pbix`      | Interactive Power BI dashboard with executive, risk driver, and operational monitoring pages.                                                         |
+| Output                          | Path                                                 | Description                                                                                                                                                         |
+|---------------------------------|------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Clean dataset                   | `data/processed/transactions_clean.csv`              | Cleaned transaction data after standardization, date parsing, validation, deduplication, and feature engineering.                                                   |
+| Scored dataset                  | `data/processed/transactions_scored.csv`             | Transactions enriched with `risk_score`, `suspicious_flag`, `risk_level`, and `risk_reasons`.                                                                       |
+| Transactions with anomaly model | `data/processed/transactions_with_anomaly_model.csv` | Scored transactions enriched with Isolation Forest anomaly detection outputs: `ml_anomaly_score`, `ml_anomaly_flag`, and `ml_anomaly_decision_score`.               |
+| Risk rules configuration        | `config/risk_rules.yaml`                             | YAML configuration file containing scoring thresholds, quantiles, points, and classification thresholds.                                                            |
+| Anomaly model configuration     | `config/anomaly_model.yaml`                          | YAML configuration file containing Isolation Forest settings and selected numerical features.                                                                       |
+| SQLite warehouse                | `warehouse/transaction_monitoring.db`                | Local analytical warehouse with fact and dimension tables.                                                                                                          |
+| HTML report                     | `reports/transaction_monitoring_report.html`         | Automated KPI report generated from the SQLite warehouse.                                                                                                           |
+| Anomaly model comparison        | `reports/anomaly_model_comparison.csv`               | Summary comparing rule-based suspicious transactions with ML-based anomaly flags.                                                                                   |
+| Power BI exports                | `data/model/*.csv`                                   | Model tables exported for Power BI.                                                                                                                                 |
+| API output                      | `data/api/transactions_from_api.csv`                 | Data fetched from the local FastAPI mock banking API.                                                                                                               |
+| Power BI dashboard              | `powerbi/transaction_monitoring_dashboard.pbix`      | Interactive four-page Power BI dashboard covering risk monitoring overview, alert review queue, rule-based vs ML signal comparison, and risk exposure segmentation. |
 
 ## Tests and continuous integration
 
